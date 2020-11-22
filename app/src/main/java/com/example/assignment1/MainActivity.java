@@ -5,11 +5,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.amplifyframework.AmplifyException;
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
+import com.amplifyframework.core.Amplify;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +24,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+            Amplify.configure(getApplicationContext());
+            Log.i("MyAmplifyApp", "Initialized Amplify");
+        } catch (AmplifyException error) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+        }
+
         setContentView(R.layout.activity_main);
         start = findViewById(R.id.startButton);
         stop = findViewById(R.id.stopButton);
@@ -35,8 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        Context context = getApplicationContext();
+
         //Setup an audio recording
-        sender = new Sender();
+        sender = new Sender(context);
         sender.setIsRecording(false);
         sender.start();
     }
@@ -55,5 +71,6 @@ public class MainActivity extends AppCompatActivity {
         start.setEnabled(true);
         stop.setEnabled(false);
     }
+
 }
 
